@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django Class-Based Views</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3 {
+            color: #0073e6;
+        }
+        pre {
+            background: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Django Class-Based Views</h1>
+        <p>Class-Based Views (CBVs) in Django provide an alternative way to implement views by using Python classes instead of functions. They offer a more organized and reusable way to handle common tasks in web development.</p>
+
+        <h2>Basic Concept</h2>
+        <p>Class-Based Views allow you to encapsulate the view logic into classes. This promotes code reusability and a cleaner structure. Django provides a variety of built-in generic CBVs to handle common use cases like displaying a list of objects, handling forms, etc.</p>
+
+        <h2>Example: Simple View</h2>
+        <p>Let's start with a simple example of a class-based view that renders a template:</p>
+        <pre><code>
+# views.py
+from django.views import View
+from django.http import HttpResponse
+from django.shortcuts import render
+
+class HomePageView(View):
+    def get(self, request):
+        return render(request, 'home.html')
+        </code></pre>
+
+        <p>In <code>urls.py</code>:</p>
+        <pre><code>
+# urls.py
+from django.urls import path
+from .views import HomePageView
+
+urlpatterns = [
+    path('', HomePageView.as_view(), name='home'),
+]
+        </code></pre>
+
+        <h2>Generic Class-Based Views</h2>
+        <p>Django provides several generic CBVs that cover common patterns, including:</p>
+        <ul>
+            <li><strong>TemplateView</strong>: Renders a template.</li>
+            <li><strong>ListView</strong>: Displays a list of objects.</li>
+            <li><strong>DetailView</strong>: Displays a detail page for a single object.</li>
+            <li><strong>CreateView</strong>: Displays a form for creating an object.</li>
+            <li><strong>UpdateView</strong>: Displays a form for updating an object.</li>
+            <li><strong>DeleteView</strong>: Displays a confirmation page for deleting an object.</li>
+        </ul>
+
+        <h3>Example: ListView</h3>
+        <p>Here's an example of using <code>ListView</code> to display a list of posts:</p>
+        <pre><code>
+# views.py
+from django.views.generic import ListView
+from .models import Post
+
+class PostListView(ListView):
+    model = Post
+    template_name = 'post_list.html'
+    context_object_name = 'posts'
+        </code></pre>
+
+        <p>In <code>urls.py</code>:</p>
+        <pre><code>
+# urls.py
+from django.urls import path
+from .views import PostListView
+
+urlpatterns = [
+    path('posts/', PostListView.as_view(), name='post_list'),
+]
+        </code></pre>
+
+        <p>In <code>post_list.html</code>:</p>
+        <pre><code>
+<!-- post_list.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Post List</title>
+</head>
+<body>
+    <h1>Blog Posts</h1>
+    {% for post in posts %}
+        <div>
+            <h2>{{ post.title }}</h2>
+            <p>{{ post.content }}</p>
+            <small>{{ post.created_at }}</small>
+        </div>
+    {% endfor %}
+</body>
+</html>
+        </code></pre>
+
+        <h2>Customizing CBVs</h2>
+        <p>You can customize CBVs by overriding their methods. For example, you can customize the <code>get_queryset</code> method to filter the objects displayed:</p>
+        <pre><code>
+# views.py
+from django.views.generic import ListView
+from .models import Post
+
+class PostListView(ListView):
+    model = Post
+    template_name = 'post_list.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        return Post.objects.filter(published=True)
+        </code></pre>
+
+        <h2>Handling Forms with CBVs</h2>
+        <p>To handle forms, Django provides <code>CreateView</code> and <code>UpdateView</code>. Here's an example of using <code>CreateView</code> to handle a form for creating a new post:</p>
+        <pre><code>
+# views.py
+from django.views.generic.edit import CreateView
+from .models import Post
+
+class PostCreateView(CreateView):
+    model = Post
+    template_name = 'post_form.html'
+    fields = ['title', 'content']
+        </code></pre>
+
+        <p>In <code>urls.py</code>:</p>
+        <pre><code>
+# urls.py
+from django.urls import path
+from .views import PostCreateView
+
+urlpatterns = [
+    path('post/new/', PostCreateView.as_view(), name='post_create'),
+]
+        </code></pre>
+
+        <p>In <code>post_form.html</code>:</p>
+        <pre><code>
+<!-- post_form.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Post</title>
+</head>
+<body>
+    <h1>Create a New Post</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+</body>
+</html>
+        </code></pre>
+
+        <h2>Conclusion</h2>
+        <p>Django Class-Based Views offer a powerful and flexible way to handle common web development tasks. They promote code reuse and a cleaner project structure. By leveraging Django's built-in generic views and customizing them as needed, you can efficiently develop robust web applications.</p>
+    </div>
+</body>
+</html>
